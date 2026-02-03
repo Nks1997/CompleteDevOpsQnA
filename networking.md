@@ -4,7 +4,7 @@ CLOUD & NETWORKING INTERVIEW Q&A
 1. **VPC / VNet**
 * AWS: VPC → isolated private network
 * Azure: VNet → isolated private network
-* Purpose: host resources, define subnets, route tables, gateways
+- Purpose: host resources, define subnets, route tables, gateways
 ---
 2. **Subnets**
 - Divide VPC/VNet into smaller segments
@@ -168,6 +168,7 @@ Q10: How do Security Groups / NSG work?
 
 End of Networking Q&A 
 ===============================
+
 
 
 
