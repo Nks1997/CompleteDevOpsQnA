@@ -1,0 +1,256 @@
+###########################################################
+# 1️⃣ INVENTORY (Example - can also be saved as hosts.ini)
+###########################################################
+inventory_example: |
+  [webservers]
+  web1.example.com
+  web2.example.com
+
+  [dbservers]
+  db1.example.com
+  db2.example.com
+
+  [webservers:vars]
+  ansible_user=azureuser
+  ansible_ssh_private_key_file=~/.ssh/id_rsa
+
+###########################################################
+# 2️⃣ AD-HOC COMMANDS
+###########################################################
+ad_hoc_examples:
+  - name: Ping all webservers
+    command: ansible webservers -m ping
+    description: "Check connectivity from control node to webservers"
+
+  - name: Run uptime
+    command: ansible webservers -m shell -a "uptime"
+    description: "Check system uptime on target hosts"
+
+  - name: Copy index.html
+    command: ansible webservers -m copy -a "src=/tmp/index.html dest=/var/www/html/index.html mode=0644"
+    description: "Copy a file from control node to managed hosts"
+
+  - name: Install Apache
+    command: ansible webservers -m package -a "name=httpd state=present"
+    description: "Install Apache package on webservers"
+
+  - name: Restart Apache
+    command: ansible webservers -m service -a "name=httpd state=restarted"
+    description: "Restart and enable Apache service"
+
+###########################################################
+# 3️⃣ SIMPLE PLAYBOOK EXAMPLE
+###########################################################
+playbook_example:
+  name: "Install Apache and setup a sample webpage"
+  hosts: webservers
+  become: yes
+  vars:
+    http_port: 80
+    index_content: "<h1>Welcome to Apache on {{ inventory_hostname }}</h1>"
+  tasks:
+    - name: Update package repository
+      ansible.builtin.package:
+        name: "*"
+        state: latest
+      when: ansible_os_family == "RedHat"
+
+    - name: Install Apache
+      ansible.builtin.package:
+        name: httpd
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    - name: Start and enable Apache
+      ansible.builtin.service:
+        name: httpd
+        state: started
+        enabled: yes
+
+    - name: Create index.html
+      ansible.builtin.copy:
+        dest: /var/www/html/index.html
+        content: "{{ index_content }}"
+        mode: '0644'
+
+    - name: Verify uptime
+      ansible.builtin.shell: uptime
+      register: uptime_result
+
+    - name: Show uptime
+      ansible.builtin.debug:
+        var: uptime_result.stdout
+
+###########################################################
+# 4️⃣ COMMON MODULES USAGE
+###########################################################
+modules_examples:
+  ping: "ansible webservers -m ping"
+  shell: "ansible webservers -m shell -a 'uptime'"
+  command: "ansible webservers -m command -a 'whoami'"
+  copy: "ansible webservers -m copy -a 'src=/tmp/index.html dest=/var/www/html/index.html'"
+  package: "ansible webservers -m package -a 'name=httpd state=present'"
+  service: "ansible webservers -m service -a 'name=httpd state=started'"
+  fetch: "ansible webservers -m fetch -a 'src=/var/log/httpd/access.log dest=./logs/'"
+
+###########################################################
+# 5️⃣ INTERVIEW Q&A
+###########################################################
+interview_qna:
+  - Q: "What is Ansible?"
+    A: "Ansible is an agentless automation tool for configuration management, provisioning, and deployment."
+
+  - Q: "Is Ansible push or pull?"
+    A: "Push-based. Control node pushes tasks to managed nodes."
+
+  - Q: "What is an inventory file?"
+    A: "A file (INI/YAML) listing hosts and optional variables."
+
+  - Q: "What is a playbook?"
+    A: "A YAML file defining tasks, hosts, and variables to execute on managed nodes."
+
+  - Q: "What is dynamic inventory?"
+    A: "Inventory fetched automatically from cloud APIs instead of static hosts."
+
+  - Q: "Difference between shell and command module?"
+    A: "shell uses shell features like pipes and variables; command executes a command directly."
+
+  - Q: "What is idempotence?"
+    A: "Running a playbook multiple times should not change the system if already in the desired state."
+
+  - Q: "How to debug a playbook?"
+    A: "Use the debug module: - debug: var=variable_name"
+
+  - Q: "How to run a playbook?"
+    A: "ansible-playbook -i hosts.ini playbook.yml"
+
+  - Q: "Commonly used modules?"
+    A: "shell, command, copy, package, service, fetch, ping, template"
+
+  - Q: "How do you create an Ansible role?"
+    A: "Use the command: ansible-galaxy init <role_name>"
+
+  - Q: "How to execute a specific playbook with a specific inventory?"
+    A: "ansible-playbook -i hosts.ini webserver_setup.yml"
+
+  - Q: "Difference between static and dynamic inventory?"
+    A: "Static is manually maintained; dynamic fetches host info from cloud providers automatically."
+
+  - Q: "What is Ansible Galaxy?"
+    A: "A community hub to share and use roles; roles can be installed via ansible-galaxy CLI."
+
+###########################################################
+# 6️⃣ SAMPLE ROLE STRUCTURE (Recommended in interviews)
+###########################################################
+ansible_role_example:
+  role_name: webserver
+  description: "Role to install and configure Apache web server"
+  structure:
+    - webserver/
+      - tasks/
+        main.yml: |
+          ---
+          - name: Install Apache
+            ansible.builtin.package:
+              name: httpd
+              state: present
+
+          - name: Start Apache
+            ansible.builtin.service:
+              name: httpd
+              state: started
+              enabled: yes
+
+      - files/
+        index.html: "<h1>Welcome to Ansible Role Example</h1>"
+
+      - templates/
+        example.j2: "<h1>Welcome {{ inventory_hostname }}</h1>"
+
+      - vars/
+        main.yml: |
+          ---
+          http_port: 80
+
+###########################################################
+# 7️⃣ COMMANDS SUMMARY
+###########################################################
+commands_summary:
+  run_playbook: "ansible-playbook -i hosts.ini webserver_setup.yml"
+  create_role: "ansible-galaxy init webserver"
+  ad_hoc_ping: "ansible webservers -m ping"
+  ad_hoc_shell: "ansible webservers -m shell -a 'uptime'"
+  ad_hoc_copy: "ansible webservers -m copy -a 'src=/tmp/index.html dest=/var/www/html/index.html'"
+
+
+---
+# Playbook Name: Configure Apache Web Server
+# Purpose: Configuration management only (install, configure, firewall, service)
+- name: Configure Apache Web Server
+  hosts: webservers       # Target host group
+  become: yes             # Use sudo
+  vars:
+    http_port: 80
+    index_content: "<h1>Welcome to My Configured Apache Server on {{ inventory_hostname }}</h1>"
+
+  tasks:
+
+    - name: Ensure Apache package is installed
+      ansible.builtin.package:
+        name: httpd           # Use 'apache2' for Ubuntu/Debian
+        state: present
+
+    - name: Ensure Apache service is running and enabled
+      ansible.builtin.service:
+        name: httpd           # Use 'apache2' for Ubuntu/Debian
+        state: started
+        enabled: yes
+
+    - name: Create custom index.html page
+      ansible.builtin.copy:
+        dest: /var/www/html/index.html
+        content: "{{ index_content }}"
+        mode: '0644'
+
+    - name: Ensure HTTP port is open in firewall (firewalld)
+      ansible.builtin.firewalld:
+        service: http
+        permanent: yes
+        state: enabled
+        immediate: yes
+      when: ansible_os_family == "RedHat"
+
+    - name: Ensure HTTP port is open in UFW (Ubuntu)
+      ansible.builtin.ufw:
+        rule: allow
+        port: "{{ http_port }}"
+        proto: tcp
+      when: ansible_os_family == "Debian"
+
+################################
+# INstallation 
+################################
+---
+# 1. Install Ansible on Control Node
+# For Ubuntu/Debian:
+# sudo apt update
+# sudo apt install ansible -y
+# For RHEL/CentOS:
+# sudo yum install epel-release -y
+# sudo yum install ansible -y
+
+# 2. Generate SSH key on Control Node
+# ssh-keygen -t rsa -b 4096 -C "ansible@controlnode"
+# Press Enter for default path (~/.ssh/id_rsa) and optional passphrase
+
+# 3. Copy SSH key to Remote Node
+# ssh-copy-id ansible_user@remote_host
+# Replace ansible_user and remote_host with your username/IP
+
+# 4. Test SSH connectivity
+# ssh ansible_user@remote_host
+# Should login without password prompt
+
+# 5. Test connectivity using Ansible ping
+# ansible all -i hosts.ini -m ping
+# Output should show "SUCCESS => {"ping": "pong"}"
