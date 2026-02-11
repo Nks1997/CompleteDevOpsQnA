@@ -1,0 +1,552 @@
+# ==========================================================
+# KUBERNETES
+# ==========================================================
+
+# ==========================================================
+# 1. WHY KUBERNETES WHEN WE HAVE DOCKER?
+# ==========================================================
+ 
+# Docker is a container runtime that allows us to build and run containers.
+# However, Docker alone cannot manage containers at scale across multiple hosts.
+# Kubernetes provides orchestration capabilities such as:
+# - Auto-scaling
+# - Self-healing
+# - Rolling updates and rollbacks
+# - Service discovery and load balancing
+# - Secret and config management
+# - High availability
+#
+# In short:
+# Docker runs containers.
+# Kubernetes manages containers in production environments.
+
+# ==========================================================
+# 2. KUBERNETES ARCHITECTURE
+# ==========================================================
+ 
+# Kubernetes architecture consists of Control Plane and Worker Nodes.
+#
+# Control Plane Components:
+# - kube-apiserver: Entry point to cluster.
+# - etcd: Stores cluster state in key-value format.
+# - kube-scheduler: Assigns pods to nodes.
+# - kube-controller-manager: Maintains desired state.
+#
+# Worker Node Components:
+# - kubelet: Ensures containers are running.
+# - kube-proxy: Handles networking and service routing.
+# - Container Runtime: Runs containers (containerd/Docker).
+
+# ==========================================================
+# NAMESPACE
+# ==========================================================
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dev
+---
+# ==========================================================
+# POD
+# ==========================================================
+ 
+# A Pod is the smallest deployable unit in Kubernetes.
+# It can contain one or more containers that share:
+# - Network (same IP)
+# - Storage (shared volumes)
+# Pods are ephemeral and managed by higher-level controllers.
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-pod
+  labels:
+    app: nginx
+spec:
+  containers:
+    - name: nginx
+      image: nginx:latest
+      ports:
+        - containerPort: 80
+---
+# ==========================================================
+# DEPLOYMENT
+# ==========================================================
+ 
+# Deployment manages ReplicaSets and ensures desired replicas are running.
+# It supports rolling updates and rollbacks.
+# Used for stateless applications.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.25
+          ports:
+            - containerPort: 80
+---
+# ==========================================================
+# SERVICE - CLUSTERIP
+# ==========================================================
+ 
+# ClusterIP is default service type.
+# Exposes service internally within the cluster.
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-clusterip
+spec:
+  type: ClusterIP
+  selector:
+    app: nginx
+  ports:
+    - port: 80
+      targetPort: 80
+---
+# ==========================================================
+# SERVICE - NODEPORT
+# ==========================================================
+ 
+# NodePort exposes service on NodeIP:Port.
+# Used mainly for testing and development.
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-nodeport
+spec:
+  type: NodePort
+  selector:
+    app: nginx
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 30007
+---
+# ==========================================================
+# SERVICE - LOADBALANCER
+# ==========================================================
+ 
+# LoadBalancer creates cloud provider load balancer.
+# Used in AWS, Azure, GCP for external access.
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-loadbalancer
+spec:
+  type: LoadBalancer
+  selector:
+    app: nginx
+  ports:
+    - port: 80
+      targetPort: 80
+---
+# ==========================================================
+# INGRESS - GENERAL
+# ==========================================================
+ 
+# Ingress manages HTTP/HTTPS routing.
+# Supports host-based and path-based routing.
+# Requires Ingress Controller (like NGINX).
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nginx-ingress
+spec:
+  rules:
+    - host: myapp.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nginx-clusterip
+                port:
+                  number: 80
+---
+# ==========================================================
+# INGRESS - AZURE AKS (Application Gateway)
+# ==========================================================
+ 
+# In AKS, Azure Application Gateway Ingress Controller (AGIC)
+# integrates with Azure Load Balancer and supports WAF.
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: aks-ingress
+  annotations:
+    kubernetes.io/ingress.class: azure/application-gateway
+spec:
+  rules:
+    - host: aksapp.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nginx-clusterip
+                port:
+                  number: 80
+---
+# ==========================================================
+# CONFIGMAP
+# ==========================================================
+ 
+# ConfigMap stores non-sensitive configuration data.
+# Used for environment variables and config files.
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  ENV: production
+---
+# ==========================================================
+# SECRET
+# ==========================================================
+ 
+# Secret stores sensitive data.
+# Data is base64 encoded.
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: app-secret
+type: Opaque
+data:
+  password: cGFzc3dvcmQ=
+---
+# ==========================================================
+# PERSISTENT VOLUME
+# ==========================================================
+ 
+# Persistent Volume provides storage resource.
+# Persistent Volume Claim requests storage.
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-storage
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/data"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-storage
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+# ==========================================================
+# STATEFULSET
+# ==========================================================
+ 
+# StatefulSet is used for stateful applications like databases.
+# Provides stable network identity and persistent storage.
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: nginx-stateful
+spec:
+  serviceName: nginx
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: nginx
+          image: nginx
+---
+# ==========================================================
+# DAEMONSET
+# ==========================================================
+ 
+# DaemonSet ensures one pod runs on each node.
+# Used for logging and monitoring agents.
+
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: fluentd
+spec:
+  selector:
+    matchLabels:
+      app: fluentd
+  template:
+    metadata:
+      labels:
+        app: fluentd
+    spec:
+      containers:
+        - name: fluentd
+          image: fluentd
+---
+# ==========================================================
+# HORIZONTAL POD AUTOSCALER
+# ==========================================================
+ 
+# HPA automatically scales pods based on CPU or memory usage.
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: nginx-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: nginx-deployment
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 50
+---
+# ==========================================================
+# RBAC
+# ==========================================================
+ 
+# RBAC controls access to cluster resources.
+# Role is namespace scoped.
+# ClusterRole is cluster scoped.
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: dev
+  name: pod-reader
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: read-pods
+  namespace: dev
+subjects:
+  - kind: User
+    name: dev-user
+roleRef:
+  kind: Role
+  name: pod-reader
+  apiGroup: rbac.authorization.k8s.io
+---
+# ==========================================================
+# DOCKER SWARM VS KUBERNETES
+# ==========================================================
+# Docker Swarm is simpler but limited in features.
+# Kubernetes provides advanced scheduling, scaling,
+# self-healing, and enterprise-grade ecosystem support.
+
+# ==========================================================
+# KUBERNETES DEVOPS INTERVIEW & DAY-TO-DAY GUIDE
+# ==========================================================
+
+day_to_day_activities:
+
+  - activity: Application Deployment
+    explanation: >
+      On a daily basis, I work with development teams to deploy applications
+      into Kubernetes clusters. This involves writing or reviewing YAML
+      manifests for Deployments, Services, ConfigMaps, and Secrets.
+      For example, when deploying a new version of a microservice, I update
+      the container image tag in the Deployment YAML and apply it using
+      'kubectl apply -f deployment.yaml'. Kubernetes performs a rolling update,
+      ensuring zero downtime. I monitor rollout status using
+      'kubectl rollout status deployment/app-name'.
+
+  - activity: Troubleshooting Pod Failures
+    explanation: >
+      When a pod enters CrashLoopBackOff state, I first check logs using
+      'kubectl logs pod-name'. If logs are unclear, I describe the pod
+      using 'kubectl describe pod pod-name' to inspect events.
+      Common issues include incorrect environment variables,
+      missing ConfigMaps, or database connectivity failures.
+      After identifying the root cause, I update configuration and redeploy.
+
+  - activity: Scaling Applications
+    explanation: >
+      When application traffic increases, I scale deployments either manually
+      using 'kubectl scale deployment app --replicas=5'
+      or automatically using Horizontal Pod Autoscaler.
+      For example, if CPU usage consistently exceeds 70%, I configure HPA
+      to scale between 2 and 10 replicas based on CPU metrics.
+
+  - activity: Node Failure Handling
+    explanation: >
+      If a worker node fails, Kubernetes automatically reschedules pods
+      to healthy nodes. I verify this using 'kubectl get nodes'.
+      If capacity is insufficient, I increase node pool size in AKS
+      or update auto-scaling configuration.
+
+  - activity: Config and Secret Management
+    explanation: >
+      I manage application configuration using ConfigMaps
+      and sensitive data using Secrets.
+      When a database password changes, I update the Secret,
+      restart the pods, and verify connectivity.
+
+  - activity: Monitoring and Logging
+    explanation: >
+      I monitor cluster health using tools like Prometheus and Grafana.
+      I check resource usage using 'kubectl top pods'.
+      For centralized logging, I configure Fluentd or Azure Monitor.
+
+  - activity: Zero Downtime Deployment
+    explanation: >
+      I ensure zero downtime by configuring rolling updates,
+      readiness probes, and multiple replicas.
+      Readiness probes ensure traffic is routed only to healthy pods.
+
+# ==========================================================
+# IMPORTANT KUBERNETES INTERVIEW Q&A
+# ==========================================================
+
+interview_questions:
+
+  - 1.question: What happens when a pod crashes?
+    answer: >
+      When a pod crashes, Kubernetes detects the failure through the kubelet.
+      If the pod is managed by a Deployment or ReplicaSet,
+      the controller automatically creates a new pod to maintain
+      the desired replica count. This behavior demonstrates
+      Kubernetes' self-healing capability.
+
+  - 2.question: What is the difference between Deployment and StatefulSet?
+    answer: >
+      Deployment is used for stateless applications where pod identity
+      does not matter. Pods are interchangeable.
+      StatefulSet is used for stateful applications such as databases.
+      It provides stable network identities and persistent storage
+      for each pod instance.
+
+  - 3.question: Explain Kubernetes Services and their types.
+    answer: >
+      A Service provides stable networking and load balancing for pods.
+      ClusterIP exposes the service internally within the cluster.
+      NodePort exposes the service on each node's IP and port.
+      LoadBalancer provisions an external load balancer in cloud environments.
+      These service types ensure communication reliability and scalability.
+
+  - 4.question: What is Ingress?
+    answer: >
+      Ingress is an API object that manages external HTTP and HTTPS access
+      to services within a cluster. It supports host-based and path-based
+      routing and typically works with an Ingress Controller such as
+      NGINX or Azure Application Gateway.
+
+  - 5.question: What is RBAC in Kubernetes?
+    answer: >
+      RBAC stands for Role-Based Access Control.
+      It regulates access to Kubernetes resources.
+      Roles define permissions within a namespace,
+      while ClusterRoles define cluster-wide permissions.
+      RoleBindings and ClusterRoleBindings assign those permissions to users or service accounts.
+
+  - 6.question: What is a ConfigMap and when do you use it?
+    answer: >
+      A ConfigMap stores non-sensitive configuration data
+      such as environment variables or configuration files.
+      It decouples configuration from container images,
+      making applications portable and easier to manage.
+
+  - 7.question: What is a Secret?
+    answer: >
+      A Secret stores sensitive data such as passwords,
+      tokens, or certificates. It is base64 encoded
+      and can be mounted as environment variables or files in pods.
+
+  - 8.question: How does Kubernetes achieve high availability?
+    answer: >
+      Kubernetes achieves high availability by running multiple replicas
+      of applications across different nodes.
+      If one pod or node fails, traffic is redirected
+      to healthy pods automatically.
+
+  - 9.question: What are liveness and readiness probes?
+    answer: >
+      Liveness probes determine whether a container should be restarted.
+      Readiness probes determine whether a container is ready to accept traffic.
+      These probes ensure application reliability and zero downtime.
+
+  - 10.question: What is kubelet?
+    answer: >
+      Kubelet is an agent running on each worker node.
+      It ensures containers described in PodSpecs are running properly
+      and communicates with the API server to report node status.
+
+  - 11.question: What is kube-proxy?
+    answer: >
+      Kube-proxy manages network rules on nodes.
+      It enables service-based communication and load balancing
+      between pods.
+
+  - 12.question: What are taints and tolerations?
+    answer: >
+      Taints are applied to nodes to prevent pods from being scheduled
+      on them unless the pod has a matching toleration.
+      This is useful for dedicating nodes for specific workloads.
+
+  - 13.question: What is a DaemonSet?
+    answer: >
+      A DaemonSet ensures that a pod runs on all or specific nodes.
+      It is typically used for logging agents, monitoring agents,
+      or security tools.
+
+  - 14.question: What is CRD?
+    answer: >
+      CRD stands for Custom Resource Definition.
+      It allows extending Kubernetes API with custom objects.
+      It is commonly used by Operators to manage complex applications.
+
+  - 15.question: How do you troubleshoot a service not accessible externally?
+    answer: >
+      First, verify the service type using 'kubectl get svc'.
+      If using NodePort, ensure firewall allows traffic.
+      If using LoadBalancer, verify external IP is assigned.
+      For Ingress, check Ingress controller logs
+      and validate DNS configuration.
+
+# ==========================================================
+# END OF FILE
+# ==========================================================
+
