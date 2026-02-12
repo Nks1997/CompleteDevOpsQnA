@@ -388,5 +388,264 @@ param(
 # multiple environments such as Dev, QA, and Production.
 
 
+<#
+====================================================================
+PowerShell Advanced Scenario-Based Questions (41–60)
+Azure DevOps Engineer – Senior Level
+Strong Interview-Level Answers Only
+====================================================================
+#>
+
+# ============================================================
+# QUESTION 41:
+# You need to stop multiple services on multiple servers only if they are running. How do you approach this in PowerShell?
+# ============================================================
+
+# Answer:
+# I would use Get-Service with a filter for the target services, then pipeline
+# to Where-Object to check the Status property. I would then use Stop-Service
+# on the filtered list. Using Invoke-Command allows me to execute this across
+# multiple remote servers efficiently.
+#
+# Example:
+# $servers = @("Server1","Server2")
+# $services = "Spooler","wuauserv"
+# Invoke-Command -ComputerName $servers -ScriptBlock {
+#     Get-Service -Name $using:services | Where-Object { $_.Status -eq "Running" } | Stop-Service
+# }
+
+
+# ============================================================
+# QUESTION 42:
+# You need to deploy a configuration change to 50 Azure VMs in a VMSS. How would you automate this?
+# ============================================================
+
+# Answer:
+# I would use Azure VMSS Custom Script Extension with PowerShell scripts to
+# apply the configuration during scale-in or scale-out operations. I ensure
+# scripts are idempotent and stored in a central repository like Git.
+# I may also trigger deployment using Azure DevOps pipeline or Azure Automation Runbook.
+
+
+# ============================================================
+# QUESTION 43:
+# You have a CSV with server names and applications. You need to check application status across all servers.
+# ============================================================
+
+# Answer:
+# I would use Import-Csv to read the file, then loop through each row using
+# foreach or ForEach-Object. I would use Invoke-Command to query application
+# status remotely, capturing results into an object or log file for reporting.
+#
+# Example:
+# $servers = Import-Csv "servers.csv"
+# foreach ($row in $servers) {
+#     Invoke-Command -ComputerName $row.Server -ScriptBlock {
+#         Get-Process -Name $using:row.Application
+#     }
+# }
+
+
+# ============================================================
+# QUESTION 44:
+# How would you rotate credentials in scripts for security compliance?
+# ============================================================
+
+# Answer:
+# I store credentials in Azure Key Vault and fetch them at runtime.
+# Scripts do not store secrets. If rotation occurs, new credentials are updated
+# in Key Vault, and scripts automatically use the latest version.
+# This prevents manual intervention and meets compliance requirements.
+
+
+# ============================================================
+# QUESTION 45:
+# How would you automate restarting a service that fails randomly in production?
+# ============================================================
+
+# Answer:
+# I would create a monitoring script that checks the service state periodically.
+# If the service is stopped or failed, the script attempts a restart, logs the
+# incident, and optionally sends an alert. I ensure idempotency and include
+# error handling to avoid cascading failures.
+#
+# Example:
+# $service = Get-Service "MyService"
+# if ($service.Status -ne "Running") { Restart-Service $service.Name }
+
+
+# ============================================================
+# QUESTION 46:
+# You need to copy files from multiple servers to a central location and avoid duplicates. How?
+# ============================================================
+
+# Answer:
+# I would use Invoke-Command to gather file paths from remote servers,
+# then copy files using Copy-Item with -Force or checksums to prevent duplicates.
+# I can also use robocopy from PowerShell for optimized transfers with retry logic.
+
+
+# ============================================================
+# QUESTION 47:
+# A scheduled task sometimes fails due to resource contention. How do you handle it?
+# ============================================================
+
+# Answer:
+# I would wrap the scheduled task logic in Try/Catch, log failures, and implement
+# retries with exponential backoff. If using Azure Automation, I can use runbook
+# retry policies. Monitoring alerts can also trigger manual intervention if needed.
+
+
+# ============================================================
+# QUESTION 48:
+# How do you ensure a PowerShell script can run across multiple environments (Dev, QA, Prod) without code changes?
+# ============================================================
+
+# Answer:
+# I parameterize scripts and store environment-specific values in configuration
+# files or variables. Using parameters, the same script can target different
+# environments. I avoid hardcoding environment-specific details.
+
+
+# ============================================================
+# QUESTION 49:
+# You need to perform bulk user account creation in Azure AD using PowerShell. How would you approach it?
+# ============================================================
+
+# Answer:
+# I would use Import-Csv to read user details and the AzureAD/AzureADPreview
+# module to create accounts. I would include error handling, logging, and checks
+# for existing users to maintain idempotency.
+#
+# Example:
+# $users = Import-Csv "users.csv"
+# foreach ($user in $users) {
+#     if (-not (Get-AzureADUser -ObjectId $user.Email -ErrorAction SilentlyContinue)) {
+#         New-AzureADUser -DisplayName $user.DisplayName -UserPrincipalName $user.Email -AccountEnabled $true
+#     }
+# }
+
+
+# ============================================================
+# QUESTION 50:
+# How would you monitor and log performance metrics of multiple servers?
+# ============================================================
+
+# Answer:
+# I use Get-Counter to retrieve CPU, Memory, and Disk metrics. I schedule
+# scripts to run periodically and export results to CSV or a database.
+# For Azure servers, I can also integrate with Log Analytics for centralized monitoring.
+
+
+# ============================================================
+# QUESTION 51:
+# You need to deploy patches to Windows servers using PowerShell. How?
+# ============================================================
+
+# Answer:
+# I use PSWindowsUpdate module to check and install patches. I script
+# the update process to run during maintenance windows, log success/failures,
+# and optionally trigger reboots. I also implement idempotency to skip
+# already installed updates.
+
+
+# ============================================================
+# QUESTION 52:
+# How would you handle long-running scripts that may timeout in Azure DevOps pipelines?
+# ============================================================
+
+# Answer:
+# I break the scripts into smaller steps, using stages or jobs in the pipeline.
+# I also ensure logging is incremental. For very long operations, I can use
+# Azure Automation runbooks or background jobs to avoid pipeline timeout.
+
+
+# ============================================================
+# QUESTION 53:
+# How do you handle retry logic in scripts for transient Azure errors?
+# ============================================================
+
+# Answer:
+# I implement Try/Catch with a loop and exponential backoff. I log retries
+# and include a maximum retry count. This ensures scripts do not fail
+# permanently due to transient network or service issues.
+
+
+# ============================================================
+# QUESTION 54:
+# How would you validate that a configuration script has applied changes correctly?
+# ============================================================
+
+# Answer:
+# I implement verification steps after applying changes. For example,
+# checking service status, file presence, registry keys, or Azure resource state.
+# This ensures the script not only runs but achieves the intended effect.
+
+
+# ============================================================
+# QUESTION 55:
+# You need to export server inventory including OS, roles, and installed features. How?
+# ============================================================
+
+# Answer:
+# I use Get-ComputerInfo and Get-WindowsFeature to gather server details,
+# then export results using Export-Csv. I can run this via Invoke-Command
+# for multiple servers, ensuring a centralized inventory.
+
+
+# ============================================================
+# QUESTION 56:
+# How do you handle dynamic VM scaling in Azure VMSS with custom scripts?
+# ============================================================
+
+# Answer:
+# I use Custom Script Extension to run PowerShell scripts on VMSS instances
+# during scale-out. Scripts are idempotent to prevent repeated changes
+# and stored in a central repository for version control.
+
+
+# ============================================================
+# QUESTION 57:
+# How would you archive logs older than 30 days across multiple servers?
+# ============================================================
+
+# Answer:
+# I would use Get-ChildItem with a filter on LastWriteTime, then use
+# Move-Item or Compress-Archive to move logs to an archive folder.
+# The script can run as a scheduled task or through Azure Automation.
+
+
+# ============================================================
+# QUESTION 58:
+# How would you manage different versions of PowerShell modules across environments?
+# ============================================================
+
+# Answer:
+# I use PowerShellGet to install specific module versions per environment.
+# I also store modules in a private repository or artifact feed to ensure
+# consistent module versions and avoid breaking changes.
+
+
+# ============================================================
+# QUESTION 59:
+# How do you handle sensitive configuration data in scripts for multiple environments?
+# ============================================================
+
+# Answer:
+# I store sensitive information in Azure Key Vault and reference it
+# in scripts via secure authentication. I avoid storing passwords or secrets
+# in source code or configuration files.
+
+
+# ============================================================
+# QUESTION 60:
+# You need to automate cleanup of temporary files across all servers nightly. How?
+# ============================================================
+
+# Answer:
+# I write a script that uses Get-ChildItem with filters on temp directories,
+# remove files older than a threshold, and log actions. The script can be
+# scheduled as a Task Scheduler job or run via Azure Automation across servers.
+
 # End of File
 
