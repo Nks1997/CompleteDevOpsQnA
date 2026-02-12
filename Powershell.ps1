@@ -649,3 +649,128 @@ Strong Interview-Level Answers Only
 
 # End of File
 
+<#
+====================================================================
+PowerShell Real-World Production Failure Troubleshooting Questions
+Azure DevOps Engineer – Senior Level
+Strong Interview-Level Answers Only
+====================================================================
+#>
+
+# ============================================================
+# QUESTION 1:
+# A scheduled script fails intermittently on a production server. How do you troubleshoot?
+# ============================================================
+
+# Answer:
+# I check event logs for errors, inspect the script logs for failure points,
+# and verify environment dependencies (network, disk, credentials). I also
+# consider resource contention and concurrent tasks. Once identified, I fix
+# root causes and implement retries or monitoring to prevent recurrence.
+
+
+# ============================================================
+# QUESTION 2:
+# A VMSS instance fails to apply a Custom Script Extension. How do you investigate?
+# ============================================================
+
+# Answer:
+# I review VMSS instance logs and Azure activity logs. I validate the script
+# syntax and accessibility from the VM. Common issues include incorrect
+# paths, permissions, or network restrictions. After fixing, I test on a single
+# instance before scaling.
+
+
+# ============================================================
+# QUESTION 3:
+# PowerShell pipeline commands are failing due to object type mismatch. How do you handle it?
+# ============================================================
+
+# Answer:
+# I inspect the output of each command in the pipeline using Get-Member.
+# I ensure that downstream commands receive objects of the expected type.
+# Type casting or property selection may be applied to resolve mismatches.
+
+
+# ============================================================
+# QUESTION 4:
+# A deployment script in Azure DevOps pipeline hangs indefinitely. What steps do you take?
+# ============================================================
+
+# Answer:
+# I break the script into smaller steps and test each in isolation.
+# I add verbose logging to identify the hanging step. I also check
+# for authentication, network latency, and resource locks. Timeouts
+# or background jobs may be implemented for long-running commands.
+
+
+# ============================================================
+# QUESTION 5:
+# A PowerShell script fails with 'Access Denied' when connecting to remote servers.
+# ============================================================
+
+# Answer:
+# I verify credentials, WinRM configuration, and account permissions.
+# I ensure that the remote server allows PowerShell remoting and that
+# the service account has proper roles. Using explicit PSCredential objects
+# with secure passwords can resolve access issues.
+
+
+# ============================================================
+# QUESTION 6:
+# Azure PowerShell commands intermittently fail due to throttling. How do you mitigate?
+# ============================================================
+
+# Answer:
+# I implement retry logic with exponential backoff. I also split bulk
+# operations into smaller batches and monitor subscription limits.
+# Using parallel processing carefully helps avoid throttling while improving performance.
+
+
+# ============================================================
+# QUESTION 7:
+# A script that deletes old files accidentally removed important data. How do you prevent this?
+# ============================================================
+
+# Answer:
+# I implement the -WhatIf parameter for destructive commands during testing.
+# I also include verification steps before deletion, logging, and backup
+# mechanisms. In production, scripts run in a controlled and monitored environment.
+
+
+# ============================================================
+# QUESTION 8:
+# A scheduled PowerShell task fails on some servers but not others. How do you identify the cause?
+# ============================================================
+
+# Answer:
+# I compare environments, including OS version, module versions,
+# execution policy, and scheduled task configuration. Differences in
+# permissions, dependencies, or path variables often cause inconsistent behavior.
+
+
+# ============================================================
+# QUESTION 9:
+# A script using AzureRM modules fails after migrating to Az modules. How do you fix it?
+# ============================================================
+
+# Answer:
+# I review module compatibility and update commands to the Az module syntax.
+# I test scripts in a staging environment and ensure all references
+# to old module cmdlets are replaced. Version locking and documentation
+# help prevent future migration issues.
+
+
+# ============================================================
+# QUESTION 10:
+# A service restart script causes downtime due to dependent services. How do you handle this?
+# ============================================================
+
+# Answer:
+# I identify dependencies using Get-Service and plan the restart order.
+# I implement checks to ensure dependent services are stopped gracefully
+# and restarted properly. Logging and notifications help track impact and rollback if needed.
+
+# End of File
+
+
