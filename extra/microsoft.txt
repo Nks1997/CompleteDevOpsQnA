@@ -1,0 +1,89 @@
+Here are the FAQ-style interview questions only (based exactly on what was asked and implied during your interview, especially for Azure DevOps + AKS + Azure roles):
+⸻
+🔹 Azure DevOps & CI/CD – FAQ Interview Questions
+	1.	How do you design a multi-stage YAML pipeline for Dev, QA, and Prod environments?
+	2.	How do you enforce approvals before promoting code to higher environments in Azure DevOps?
+	3.	What are Azure DevOps Environments and how do approval gates work?
+	4.	What is the difference between Microsoft-hosted agents and self-hosted agents?
+	5.	How do you optimize a pipeline that is taking too long to run?
+	6.	How do you implement caching in Azure DevOps pipelines?
+	7.	How do you parameterize pipelines for multiple applications?
+	8.	How do you migrate pipelines from Octopus or Jenkins to Azure DevOps?
+	9.	How do you secure secrets in pipelines?
+	10.	What validation checks do you include before deploying to production?
+⸻
+🔹 Docker & Containerization – FAQ Interview Questions
+	1.	How do you build a Docker image from a Dockerfile using Azure DevOps pipeline?
+	2.	How do you push a Docker image to Azure Container Registry (ACR)?
+	3.	What if you don’t have a service connection to ACR — how else can you authenticate?
+	4.	What is a multi-stage build in Docker and why is it used?
+	5.	What is the difference between CMD and ENTRYPOINT in Docker?
+	6.	How do you reduce Docker image size in production builds?
+	7.	How do you tag and version container images in CI/CD?
+⸻
+🔹 Kubernetes / AKS – FAQ Interview Questions
+	1.	After building a Docker image, how do you deploy an API to AKS?
+	2.	What Kubernetes manifest files are required for deployment?
+	3.	What is the difference between Deployment and Service in Kubernetes?
+	4.	How does AKS pull images from ACR securely?
+	5.	How do you manage secrets in Kubernetes (ConfigMap vs Secret)?
+	6.	How do you scale applications in Kubernetes?
+	7.	What is Horizontal Pod Autoscaler (HPA)?
+	8.	How do you control scaling of actual nodes in AKS (Cluster Autoscaler)?
+	9.	What are CRDs (Custom Resource Definitions)?
+	10.	Have you used Helm charts? What are their advantages?
+	11.	Have you worked with Istio or any service mesh?
+	12.	What monitoring stack have you used in Kubernetes (Prometheus, Node Exporter, etc.)?
+⸻
+🔹 Azure Services & Architecture – FAQ Interview Questions
+	1.	Which Azure services have you worked with apart from App Services and Functions?
+	2.	Have you worked with VM, VMSS, Load Balancer, and VNet configurations?
+	3.	Have you used any data services like Azure SQL, Cosmos DB, or Postgres?
+	4.	How do Azure Storage Accounts integrate with applications?
+	5.	What is Azure Key Vault and how have you used it in deployments?
+	6.	How do you integrate Azure Key Vault secrets into applications or pipelines?
+	7.	What happens if a Key Vault secret referenced in App Settings fails?
+	8.	How do you troubleshoot Key Vault access issues?
+	9.	What are serverless services you have used in Azure?
+⸻
+🔹 Identity, Security & Governance – FAQ Interview Questions
+	1.	What is Managed Identity in Azure?
+	2.	What is the difference between System-assigned and User-assigned Managed Identity?
+	3.	How do you give an Azure Function access to a Storage Account securely?
+	4.	How does RBAC work in Azure?
+	5.	How do you control who can provision resources in a subscription?
+	6.	What is Azure Policy?
+	7.	How do you manage governance across Dev, QA, and Prod subscriptions?
+	8.	How do service connections work in Azure DevOps?
+	9.	How do you prevent secrets (API keys) from being committed into Git repositories?
+	10.	What tools can be used for secret scanning in pipelines (GitLeaks, CredScan, etc.)?
+⸻
+🔹 Azure Functions & App Services – FAQ Interview Questions
+	1.	How do you deploy code to Azure Functions via CI/CD?
+	2.	Why would a deployed Azure Function not appear in the Azure Portal?
+	3.	What is the role of host.json in Azure Functions?
+	4.	How do you manage application settings and secrets in Azure Functions?
+	5.	How do you reference Key Vault secrets in App Settings?
+⸻
+🔹 Infrastructure as Code (IaC) – FAQ Interview Questions
+	1.	Have you used ARM templates, Bicep, or Terraform?
+	2.	How do you provision Azure resources using pipelines?
+	3.	How do you assign permissions to resources created via IaC?
+	4.	How do managed identities get RBAC roles during deployment?
+⸻
+🔹 Governance & Deployment Process – FAQ Interview Questions
+	1.	How do you control deployments across environments (Dev → QA → Prod)?
+	2.	How do you ensure only approved code is deployed to production?
+	3.	How do you manage service accounts per environment?
+	4.	How do you implement least-privilege access in deployments?
+	5.	Was infrastructure provisioned manually or through IaC in your projects?
+⸻
+🔹 Experience & Behavioral (Project-Based) – FAQ Interview Questions
+	1.	Describe your recent engagement and your role in it.
+	2.	What was the architecture of your last project?
+	3.	What challenges did you face during pipeline migration?
+	4.	How many applications did you manage in CI/CD?
+	5.	What was your contribution in the migration project?
+	6.	How long was your recent engagement?
+	7.	What projects did you work on before this one?
+	8.	Did you work in maintenance or greenfield projects?
