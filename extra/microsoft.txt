@@ -1,4 +1,4 @@
-Here are the FAQ-style interview questions only (based exactly on what was asked and implied during your interview, especially for Azure DevOps + AKS + Azure roles):
+ (based exactly on what was asked and implied during your interview, especially for Azure DevOps + AKS + Azure roles):
 ⸻
 🔹 Azure DevOps & CI/CD – FAQ Interview Questions
 	1.	How do you design a multi-stage YAML pipeline for Dev, QA, and Prod environments?
