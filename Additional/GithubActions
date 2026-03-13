@@ -1,10 +1,3 @@
-############################################################
-# SAMPLE GITHUB ACTIONS PIPELINE (CI/CD) FOR PROFESSIONAL USE
-# FILE: github_actions_pipeline.yml
-# DESCRIPTION: Complete GitHub Actions workflow with build, test, deploy stages,
-# notifications, caching, and secrets usage for a professional DevOps pipeline.
-############################################################
-
 # 1. Name of the workflow
 name: Professional CI/CD Pipeline
 
@@ -192,3 +185,4 @@ jobs:
 
 # Q19. Interview-friendly summary:
 # A19. “GitHub Actions is a versatile CI/CD platform integrated with GitHub. It supports multiple triggers (push, pull_request, schedule, manual), jobs with matrix strategies, reusable workflows, secure secrets handling, artifact management, and integrations with cloud services. Runners execute jobs, steps define tasks, and actions provide reusable components. Proper use of environments, approvals, and caching ensures professional-grade pipelines.”
+
